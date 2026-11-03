@@ -8,14 +8,14 @@
   <a class="btn btn-primary btn-sm" href="{% url 'clients:new' %}"><i class="bi bi-plus-lg me-1"></i>Add client</a>
 </div>
 
-<form class="d-flex align-items-center gap-2 mb-3" method="get" style="max-width: 520px;">
-  <div class="input-group">
-    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+<form class="d-flex flex-nowrap align-items-center gap-2 mb-3" method="get" style="max-width: 600px;">
+  <div class="input-group flex-nowrap">
     <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search company, code or contact">
+    <button class="btn btn-primary" aria-label="Search"><i class="bi bi-search"></i></button>
   </div>
   <div class="dropdown">
     <button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-label="Filters">
-      <i class="bi bi-funnel"></i>
+      <i class="bi bi-sliders"></i>
       {% if status %}<span class="position-absolute top-0 start-100 translate-middle p-1 bg-primary rounded-circle"></span>{% endif %}
     </button>
     <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 220px;">

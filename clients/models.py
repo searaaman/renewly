@@ -30,7 +30,7 @@ class Client(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['company_name']
+        ordering = ['id']
 
     def __str__(self):
         return f'{self.client_code} · {self.company_name}'
