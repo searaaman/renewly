@@ -8,22 +8,28 @@
   <a class="btn btn-primary btn-sm" href="{% url 'clients:new' %}"><i class="bi bi-plus-lg me-1"></i>Add client</a>
 </div>
 
-<form class="row g-2 mb-3" method="get">
-  <div class="col-12 col-md-6">
-    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by company, code or contact">
+<form class="d-flex align-items-center gap-2 mb-3" method="get" style="max-width: 520px;">
+  <div class="input-group">
+    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+    <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search company, code or contact">
   </div>
-  <div class="col-8 col-md-3">
-    <select class="form-select" name="status">
-      <option value="">All statuses</option>
-      {% for value, label in statuses %}
-      <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+  <div class="dropdown">
+    <button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-label="Filters">
+      <i class="bi bi-funnel"></i>
+      {% if status %}<span class="position-absolute top-0 start-100 translate-middle p-1 bg-primary rounded-circle"></span>{% endif %}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 220px;">
+      <label class="form-label small text-muted" for="status">Status</label>
+      <select class="form-select form-select-sm mb-3" name="status" id="status">
+        <option value="">All</option>
+        {% for value, label in statuses %}
+        <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-primary btn-sm w-100">Apply</button>
+    </div>
   </div>
-  <div class="col-4 col-md-3 d-flex gap-2">
-    <button class="btn btn-outline-primary flex-grow-1">Filter</button>
-    {% if query or status %}<a class="btn btn-outline-secondary" href="{% url 'clients:list' %}">Clear</a>{% endif %}
-  </div>
+  {% if query or status %}<a class="btn btn-link btn-sm text-nowrap" href="{% url 'clients:list' %}">Clear</a>{% endif %}
 </form>
 
 <div class="card shadow-sm">
