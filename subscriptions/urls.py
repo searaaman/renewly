@@ -6,6 +6,7 @@ app_name = 'subscriptions'
 
 urlpatterns = [
     path('', views.subscription_list, name='list'),
+    path('renewals/', views.renewal_list, name='renewals'),
     path('new/', views.subscription_form, name='new'),
     path('<int:pk>/edit/', views.subscription_form, name='edit'),
     path('<int:pk>/renew/', views.subscription_renew, name='renew'),

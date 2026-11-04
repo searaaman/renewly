@@ -10,11 +10,12 @@ from django.utils.dateparse import parse_date
 from .forms import SubscriptionForm
 from .models import Subscription
 
+RENEWAL_WINDOW_DAYS = 90
 
 
 @login_required
 def subscription_list(request):
-    subscriptions = Subscription.objects.select_related('client', 'plan').prefetch_related('payments')
+    subscriptions = Subscription.objects.select_related('client', 'plan', 'renewed_from__plan').prefetch_related('payments')
     if request.GET.get('sort') == 'latest':
         subscriptions = subscriptions.order_by('-end_date')
     try:
@@ -33,6 +34,20 @@ def subscription_list(request):
         'sort': request.GET.get('sort', ''),
         'expires_by': expires_by,
     })
+
+
+@login_required
+def renewal_list(request):
+    Status = Subscription.Status
+    subscriptions = Subscription.objects.select_related('client', 'plan').prefetch_related('payments', 'renewals')
+    followups = [
+        s for s in subscriptions
+        if not s.renewals.all() and (
+            s.status in (Status.EXPIRED, Status.EXPIRING_SOON)
+            or (s.status == Status.ACTIVE and s.days_left <= RENEWAL_WINDOW_DAYS)
+        )
+    ]
+    return render(request, 'subscriptions/renewals.html', {'subscriptions': followups})
 
 
 @login_required

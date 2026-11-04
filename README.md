@@ -8,10 +8,11 @@ Test login details are provided with the submission. The app runs on Render's fr
 
 ## Features
 
-- **Clients:** add, edit and view clients, with generated `CL-001` codes and an Active, Inactive or Suspended status. Each client has a profile with its subscriptions and payment history.
-- **Subscriptions:** plans, dates, amounts, and licensed, active and available users. Subscriptions can be renewed or cancelled, and each renewal links back to the previous term.
+- **Clients:** add, edit and view clients, with generated `CL-001` codes and an Active, Inactive or Suspended status. Each client has a profile with its subscriptions and payment history, and a CSV report to download.
+- **Subscriptions:** plans, dates, duration, renewal date, amounts, and licensed, active and available users. Subscriptions can be renewed or cancelled. Each renewal links back to the previous term and shows any change in plan, licences or amount.
+- **Renewals:** a follow-up list of subscriptions that have expired or end within 90 days and haven't been renewed, with contact details.
 - **Payments:** record several payments per subscription by UPI, NEFT, card, cheque or cash, with balances and full history.
-- **Dashboard:** finance, client and subscription figures, plus charts for monthly revenue and subscriptions by status.
+- **Dashboard:** finance, client and subscription figures, plus charts for subscriptions by status and monthly revenue. Revenue can be viewed by 3 months, 6 months, 1 year, financial year or a custom range.
 - **Alerts:** subscriptions expiring within 30 days, expired, or renewing in 31–90 days, plus overdue and pending payments.
 - **Search and filters:** search clients by name, filter clients by status or payment status, and filter subscriptions by status or expiry date. Subscriptions can also be sorted by expiry.
 - **Validation:** rejects invalid dates, negative amounts, licence overuse, overpayment, future-dated payments and duplicate transaction references.
@@ -69,7 +70,6 @@ payments/        Payment records and balances
 dashboard/       Dashboard, alerts, sample data command
 config/          Settings, URLs, shared form base, number format
 templates/       Base layout and login page
-docs/            Market research
 ```
 
 Dependencies run one way: `payments` → `subscriptions` → `clients`. The dashboard only reads from them and has no models of its own.
@@ -92,4 +92,5 @@ Key rules are also enforced by the database: the end date must follow the start 
 - **Payment gateway:** payments are recorded manually, and no gateway is connected.
 - **Concurrent payments:** two people paying into the same subscription at the same moment could get past the overpayment check.
 - **Status filters:** these run in Python rather than SQL, which is fine at this scale but would need changing for thousands of subscriptions.
-- **Automated tests:** the repo has none yet. Flows have been tested manually.
+- **Plan changes:** these are recorded when renewing. Editing a subscription directly overwrites its terms.
+- **Automated tests:** these cover the renewal list, renewal changes, financial years and client reports (`python manage.py test`). Other flows have been tested manually.

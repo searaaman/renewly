@@ -1,6 +1,6 @@
 
 from collections import Counter
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -23,6 +23,10 @@ def month_start(day, months_back=0):
     return date(year, month + 1, 1)
 
 
+def financial_year_start(day):
+    return date(day.year if day.month >= 4 else day.year - 1, 4, 1)
+
+
 @login_required
 def dashboard(request):
     Status = Subscription.Status
@@ -39,7 +43,12 @@ def dashboard(request):
     today = timezone.localdate()
     period = request.GET.get('period', '12')
     start = end = None
-    if period == 'custom':
+    if period == 'fy':
+        start, end = financial_year_start(today), today
+    elif period == 'last_fy':
+        end = financial_year_start(today) - timedelta(days=1)
+        start = financial_year_start(end)
+    elif period == 'custom':
         try:
             start = parse_date(request.GET.get('from', ''))
             end = parse_date(request.GET.get('to', ''))
@@ -85,6 +94,7 @@ def dashboard(request):
         'revenue_this_month': Payment.objects.filter(paid_on__gte=today.replace(day=1)).aggregate(total=Sum('amount'))['total'] or 0,
         'revenue_total': sum(revenue_values),
         'period': period,
+        'fy_label': f'FY {start.year}–{(start.year + 1) % 100:02d}',
         'start': start,
         'end': end,
         'expiring': [s for s in not_renewed if s.status == Status.EXPIRING_SOON],

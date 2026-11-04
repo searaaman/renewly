@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
@@ -77,6 +78,21 @@ class Subscription(models.Model):
     @property
     def days_left(self):
         return (self.end_date - timezone.localdate()).days
+
+    @property
+    def duration(self):
+        days = (self.end_date - self.start_date).days
+        months = round(days / 30.44)
+        if months < 1:
+            return f'{days} day{"s" if days != 1 else ""}'
+        if months % 12 == 0:
+            years = months // 12
+            return f'{years} year{"s" if years != 1 else ""}'
+        return f'{months} month{"s" if months != 1 else ""}'
+
+    @property
+    def renewal_date(self):
+        return self.end_date + timedelta(days=1)
 
     @property
     def status(self):

@@ -27,7 +27,8 @@
       {% url 'dashboard' as dashboard_url %}
       <li><a class="nav-link {% if request.path == dashboard_url %}active{% endif %}" href="{{ dashboard_url }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
       <li><a class="nav-link {% if request.resolver_match.namespace == 'clients' %}active{% endif %}" href="{% url 'clients:list' %}"><i class="bi bi-building me-2"></i>Clients</a></li>
-      <li><a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' %}active{% endif %}" href="{% url 'subscriptions:list' %}"><i class="bi bi-arrow-repeat me-2"></i>Subscriptions</a></li>
+      <li><a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' and request.resolver_match.url_name != 'renewals' %}active{% endif %}" href="{% url 'subscriptions:list' %}"><i class="bi bi-arrow-repeat me-2"></i>Subscriptions</a></li>
+      <li><a class="nav-link {% if request.resolver_match.namespace == 'subscriptions' and request.resolver_match.url_name == 'renewals' %}active{% endif %}" href="{% url 'subscriptions:renewals' %}"><i class="bi bi-calendar-check me-2"></i>Renewals</a></li>
       <li><a class="nav-link {% if request.resolver_match.namespace == 'payments' %}active{% endif %}" href="{% url 'payments:list' %}"><i class="bi bi-credit-card me-2"></i>Payments</a></li>
     </ul>
   </nav>

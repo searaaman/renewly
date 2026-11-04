@@ -45,14 +45,16 @@
     <div class="card shadow-sm h-100" id="revenue">
       <div class="card-header bg-white d-flex justify-content-between">
         <span class="fw-semibold">Monthly revenue</span>
-        <span class="text-muted">{% if period == 'custom' %}Selected period{% elif period == '12' %}Last 1 year{% else %}Last {{ period }} months{% endif %}: <span class="fw-semibold text-body">₹{{ revenue_total|floatformat:"0"|intcomma }}</span></span>
+        <span class="text-muted">{% if period == 'custom' %}Selected period{% elif period == 'fy' or period == 'last_fy' %}{{ fy_label }}{% elif period == '12' %}Last 1 year{% else %}Last {{ period }} months{% endif %}: <span class="fw-semibold text-body">₹{{ revenue_total|floatformat:"0"|intcomma }}</span></span>
       </div>
       <div class="card-body">
         <div class="d-flex flex-wrap gap-2 justify-content-between mb-3">
-          <div class="btn-group btn-group-sm">
-            <a class="btn btn-outline-primary{% if period == '3' %} active{% endif %}" href="?period=3#revenue">3 months</a>
-            <a class="btn btn-outline-primary{% if period == '6' %} active{% endif %}" href="?period=6#revenue">6 months</a>
-            <a class="btn btn-outline-primary{% if period == '12' %} active{% endif %}" href="?period=12#revenue">1 year</a>
+          <div class="d-flex flex-wrap gap-1">
+            <a class="btn btn-sm btn-outline-primary{% if period == '3' %} active{% endif %}" href="?period=3#revenue">3 months</a>
+            <a class="btn btn-sm btn-outline-primary{% if period == '6' %} active{% endif %}" href="?period=6#revenue">6 months</a>
+            <a class="btn btn-sm btn-outline-primary{% if period == '12' %} active{% endif %}" href="?period=12#revenue">1 year</a>
+            <a class="btn btn-sm btn-outline-primary{% if period == 'fy' %} active{% endif %}" href="?period=fy#revenue">This FY</a>
+            <a class="btn btn-sm btn-outline-primary{% if period == 'last_fy' %} active{% endif %}" href="?period=last_fy#revenue">Last FY</a>
           </div>
           {% now "Y-m-d" as today %}
           <form class="d-flex flex-wrap align-items-center gap-2" method="get" action="#revenue">

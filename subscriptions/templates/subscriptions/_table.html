@@ -17,9 +17,16 @@
       {% for subscription in subscriptions %}
       <tr>
         {% if show_client %}<td><a class="fw-semibold text-decoration-none" href="{% url 'clients:detail' subscription.client_id %}">{{ subscription.client.company_name }}</a></td>{% endif %}
-        <td class="{% if show_client %}d-none d-md-table-cell{% endif %}">{{ subscription.plan }}{% if subscription.renewed_from_id %} <i class="bi bi-arrow-repeat text-muted" title="Renewal"></i>{% endif %}</td>
+        <td class="{% if show_client %}d-none d-md-table-cell{% endif %}">{{ subscription.plan }}{% if subscription.renewed_from_id %} <i class="bi bi-arrow-repeat text-muted" title="Renewal"></i>
+          {% with previous=subscription.renewed_from %}
+          {% if previous.plan_id != subscription.plan_id %}<div class="small text-muted">Plan: {{ previous.plan }} → {{ subscription.plan }}</div>{% endif %}
+          {% if previous.licensed_users != subscription.licensed_users %}<div class="small text-muted">Licenses: {{ previous.licensed_users }} → {{ subscription.licensed_users }}</div>{% endif %}
+          {% if previous.amount != subscription.amount %}<div class="small text-muted">Amount: ₹{{ previous.amount|floatformat:"0"|intcomma }} → ₹{{ subscription.amount|floatformat:"0"|intcomma }}</div>{% endif %}
+          {% endwith %}
+          {% endif %}</td>
         <td class="small d-none d-md-table-cell">
           {{ subscription.start_date|date:"d M Y" }} → {{ subscription.end_date|date:"d M Y" }}
+          <div class="text-muted">{{ subscription.duration }}{% if subscription.status != 'cancelled' %} · Renewal {{ subscription.renewal_date|date:"d M Y" }}{% endif %}</div>
           {% if subscription.status == 'expiring_soon' %}<div class="text-warning-emphasis">{{ subscription.days_left }} days left</div>
           {% elif subscription.status == 'expired' %}<div class="text-danger">ended {{ subscription.end_date|timesince }} ago</div>{% endif %}
         </td>

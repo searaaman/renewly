@@ -48,7 +48,7 @@
       <tbody>
         {% for client in clients %}
         <tr>
-          <td class="text-muted">{{ client.client_code }}</td>
+          <td class="text-muted text-nowrap">{{ client.client_code }}</td>
           <td><a class="fw-semibold text-decoration-none" href="{% url 'clients:detail' client.pk %}">{{ client.company_name }}</a></td>
           <td class="d-none d-md-table-cell">{{ client.contact_person }}</td>
           <td class="d-none d-md-table-cell">{{ client.city }}</td>

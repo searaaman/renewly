@@ -26,11 +26,11 @@
       <thead class="table-light">
         <tr>
           <th>Client</th>
-          <th>Plan</th>
-          <th class="text-end">Total</th>
-          <th class="text-end">Paid</th>
+          <th class="d-none d-md-table-cell">Plan</th>
+          <th class="d-none d-md-table-cell text-end">Total</th>
+          <th class="d-none d-md-table-cell text-end">Paid</th>
           <th class="text-end">Outstanding</th>
-          <th>Due</th>
+          <th class="d-none d-md-table-cell">Due</th>
           <th>Status</th>
           <th></th>
         </tr>
@@ -39,11 +39,11 @@
         {% for subscription in subscriptions %}
         <tr>
           <td><a class="fw-semibold text-decoration-none" href="{% url 'clients:detail' subscription.client_id %}">{{ subscription.client.company_name }}</a></td>
-          <td>{{ subscription.plan }}</td>
-          <td class="text-end">₹{{ subscription.amount|floatformat:"0"|intcomma }}</td>
-          <td class="text-end">₹{{ subscription.amount_paid|floatformat:"0"|intcomma }}</td>
+          <td class="d-none d-md-table-cell">{{ subscription.plan }}</td>
+          <td class="d-none d-md-table-cell text-end">₹{{ subscription.amount|floatformat:"0"|intcomma }}</td>
+          <td class="d-none d-md-table-cell text-end">₹{{ subscription.amount_paid|floatformat:"0"|intcomma }}</td>
           <td class="text-end">₹{{ subscription.outstanding|floatformat:"0"|intcomma }}</td>
-          <td class="text-nowrap">{{ subscription.due_date|date:"d M Y" }}</td>
+          <td class="d-none d-md-table-cell text-nowrap">{{ subscription.due_date|date:"d M Y" }}</td>
           <td>{% include "payments/_status_badge.html" %}</td>
           <td class="text-end">{% if subscription.outstanding > 0 %}<a class="btn btn-sm btn-outline-primary text-nowrap" href="{% url 'payments:new' %}?subscription={{ subscription.pk }}">Record</a>{% endif %}</td>
         </tr>
