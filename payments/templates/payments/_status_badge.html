@@ -1,0 +1,1 @@
+{% with s=subscription.payment_status %}{% if s == 'paid' %}<span class="badge text-bg-success">Paid</span>{% elif s == 'partial' %}<span class="badge text-bg-warning">Partially Paid</span>{% elif s == 'overdue' %}<span class="badge text-bg-danger">Overdue</span>{% else %}<span class="badge text-bg-secondary">Pending</span>{% endif %}{% endwith %}

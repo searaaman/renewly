@@ -29,6 +29,12 @@ class Subscription(models.Model):
         PENDING = 'pending', 'Pending Activation'
         CANCELLED = 'cancelled', 'Cancelled'
 
+    class PaymentStatus(models.TextChoices):
+        PAID = 'paid', 'Paid'
+        PARTIAL = 'partial', 'Partially Paid'
+        PENDING = 'pending', 'Pending'
+        OVERDUE = 'overdue', 'Overdue'
+
     client = models.ForeignKey(Client, on_delete=models.PROTECT, related_name='subscriptions')
     plan = models.ForeignKey(Plan, on_delete=models.PROTECT, related_name='subscriptions')
     start_date = models.DateField()
@@ -61,6 +67,8 @@ class Subscription(models.Model):
             raise ValidationError({'end_date': 'End date must be after the start date.'})
         if self.licensed_users and self.active_users > self.licensed_users:
             raise ValidationError({'active_users': 'Active users cannot exceed licensed users.'})
+        if self.pk and self.amount is not None and self.amount < self.amount_paid:
+            raise ValidationError({'amount': 'Amount cannot be less than what has already been paid.'})
 
     @property
     def available_licenses(self):
@@ -81,3 +89,21 @@ class Subscription(models.Model):
         if self.days_left <= EXPIRING_SOON_DAYS:
             return self.Status.EXPIRING_SOON
         return self.Status.ACTIVE
+
+    @property
+    def amount_paid(self):
+        return sum((p.amount for p in self.payments.all()), Decimal('0'))
+
+    @property
+    def outstanding(self):
+        return self.amount - self.amount_paid
+
+    @property
+    def payment_status(self):
+        if self.outstanding <= 0:
+            return self.PaymentStatus.PAID
+        if self.due_date < timezone.localdate():
+            return self.PaymentStatus.OVERDUE
+        if self.amount_paid > 0:
+            return self.PaymentStatus.PARTIAL
+        return self.PaymentStatus.PENDING

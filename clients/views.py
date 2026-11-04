@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ClientForm
 from .models import Client
+from payments.models import Payment
 
 
 @login_required
@@ -31,8 +32,13 @@ def client_list(request):
 @login_required
 def client_detail(request, pk):
     client = get_object_or_404(Client, pk=pk)
-    subscriptions = client.subscriptions.select_related('plan')
-    return render(request, 'clients/detail.html', {'client': client, 'subscriptions': subscriptions})
+    subscriptions = client.subscriptions.select_related('plan').prefetch_related('payments')
+    payments = Payment.objects.filter(subscription__client=client).select_related('subscription__plan')
+    return render(request, 'clients/detail.html', {
+        'client': client,
+        'subscriptions': subscriptions,
+        'payments': payments,
+    })
 
 @login_required
 def client_form(request, pk=None):

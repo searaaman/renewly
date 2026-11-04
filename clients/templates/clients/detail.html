@@ -48,4 +48,9 @@
   </div>
   {% include "subscriptions/_table.html" with show_client=False %}
 </div>
+
+<div class="card shadow-sm mt-3">
+  <div class="card-header bg-white fw-semibold">Payment history</div>
+  {% include "payments/_history.html" with show_client=False %}
+</div>
 {% endblock %}

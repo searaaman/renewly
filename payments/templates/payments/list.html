@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Payments · Renewly{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h4 mb-0">Payments</h1>
+  <a class="btn btn-primary btn-sm" href="{% url 'payments:new' %}"><i class="bi bi-plus-lg me-1"></i>Record payment</a>
+</div>
+
+<form class="d-flex flex-nowrap align-items-center gap-2 mb-3" method="get">
+  <select class="form-select w-auto" name="status" aria-label="Payment status" onchange="this.form.submit()">
+    <option value="">All statuses</option>
+    {% for value, label in statuses %}
+    <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  {% if status %}<a class="btn btn-link btn-sm" href="{% url 'payments:list' %}">Clear</a>{% endif %}
+</form>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold">Balances</div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Client</th>
+          <th>Plan</th>
+          <th class="text-end">Total</th>
+          <th class="text-end">Paid</th>
+          <th class="text-end">Outstanding</th>
+          <th>Due</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for subscription in subscriptions %}
+        <tr>
+          <td><a class="fw-semibold text-decoration-none" href="{% url 'clients:detail' subscription.client_id %}">{{ subscription.client.company_name }}</a></td>
+          <td>{{ subscription.plan }}</td>
+          <td class="text-end">₹{{ subscription.amount|floatformat:"0"|intcomma }}</td>
+          <td class="text-end">₹{{ subscription.amount_paid|floatformat:"0"|intcomma }}</td>
+          <td class="text-end">₹{{ subscription.outstanding|floatformat:"0"|intcomma }}</td>
+          <td class="text-nowrap">{{ subscription.due_date|date:"d M Y" }}</td>
+          <td>{% include "payments/_status_badge.html" %}</td>
+          <td class="text-end">{% if subscription.outstanding > 0 %}<a class="btn btn-sm btn-outline-primary text-nowrap" href="{% url 'payments:new' %}?subscription={{ subscription.pk }}">Record</a>{% endif %}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-4">No subscriptions found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-white fw-semibold">Payment history</div>
+  {% include "payments/_history.html" with show_client=True %}
+</div>
+{% endblock %}

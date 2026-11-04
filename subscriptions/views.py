@@ -12,7 +12,7 @@ from .models import Subscription
 
 @login_required
 def subscription_list(request):
-    subscriptions = Subscription.objects.select_related('client', 'plan')
+    subscriptions = Subscription.objects.select_related('client', 'plan').prefetch_related('payments')
     if request.GET.get('sort') == 'latest':
         subscriptions = subscriptions.order_by('-end_date')
     status = request.GET.get('status', '')

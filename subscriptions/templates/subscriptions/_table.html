@@ -9,6 +9,7 @@
         <th class="d-none d-md-table-cell">Licenses</th>
         <th class="text-end">Amount</th>
         <th>Status</th>
+        <th>Payment</th>
         <th></th>
       </tr>
     </thead>
@@ -31,12 +32,19 @@
         </td>
         <td class="text-end">₹{{ subscription.amount|floatformat:"0"|intcomma }}</td>
         <td>{% include "subscriptions/_status_badge.html" %}</td>
+        <td>
+          {% if subscription.status == 'cancelled' %}—{% else %}
+          {% include "payments/_status_badge.html" %}
+          {% if subscription.outstanding > 0 %}<div class="small text-muted text-nowrap">₹{{ subscription.outstanding|floatformat:"0"|intcomma }} due</div>{% endif %}
+          {% endif %}
+        </td>
         <td class="text-end text-nowrap">
           <div class="dropdown">
             <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" aria-label="Actions"><i class="bi bi-three-dots"></i></button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="{% url 'subscriptions:edit' subscription.pk %}"><i class="bi bi-pencil me-2"></i>Edit</a></li>
               {% if subscription.status != 'cancelled' %}
+              {% if subscription.outstanding > 0 %}<li><a class="dropdown-item" href="{% url 'payments:new' %}?subscription={{ subscription.pk }}"><i class="bi bi-credit-card me-2"></i>Record payment</a></li>{% endif %}
               <li>
                 <form method="post" action="{% url 'subscriptions:renew' subscription.pk %}">{% csrf_token %}
                   <button class="dropdown-item"><i class="bi bi-arrow-repeat me-2"></i>Renew</button>
@@ -53,7 +61,7 @@
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="7" class="text-center text-muted py-4">No subscriptions found.</td></tr>
+      <tr><td colspan="8" class="text-center text-muted py-4">No subscriptions found.</td></tr>
       {% endfor %}
     </tbody>
   </table>
