@@ -2,15 +2,25 @@
 from collections import Counter
 from datetime import date
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import render
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 
 from clients.models import Client
 from payments.models import Payment
 from subscriptions.models import Subscription
+
+PERIODS = {'3': 3, '6': 6, '12': 12}
+MAX_RANGE_DAYS = 3660
+
+
+def month_start(day, months_back=0):
+    year, month = divmod(day.year * 12 + day.month - 1 - months_back, 12)
+    return date(year, month + 1, 1)
 
 
 @login_required
@@ -27,12 +37,29 @@ def dashboard(request):
     pending = [s for s in live if s.payment_status in (PaymentStatus.PENDING, PaymentStatus.PARTIAL)]
 
     today = timezone.localdate()
+    period = request.GET.get('period', '12')
+    start = end = None
+    if period == 'custom':
+        try:
+            start = parse_date(request.GET.get('from', ''))
+            end = parse_date(request.GET.get('to', ''))
+        except ValueError:
+            start = end = None
+        if not start or not end or start > end or end > today or (end - start).days > MAX_RANGE_DAYS:
+            messages.error(request, 'Choose a valid date range.')
+            start = end = None
+    if not start:
+        period = period if period in PERIODS else '12'
+        start = month_start(today, PERIODS[period] - 1)
+        end = today
+
     months = []
-    for i in range(11, -1, -1):
-        year, month = divmod(today.year * 12 + today.month - 1 - i, 12)
-        months.append(date(year, month + 1, 1))
+    month = start.replace(day=1)
+    while month <= end:
+        months.append(month)
+        month = month_start(month, -1)
     rows = (
-        Payment.objects.filter(paid_on__gte=months[0])
+        Payment.objects.filter(paid_on__range=(start, end))
         .annotate(month=TruncMonth('paid_on'))
         .values('month')
         .annotate(total=Sum('amount'))
@@ -55,8 +82,11 @@ def dashboard(request):
         'outstanding': sum(s.outstanding for s in live),
         'pending_amount': sum(s.outstanding for s in pending),
         'overdue_amount': sum(s.outstanding for s in overdue),
-        'revenue_this_month': revenue_values[-1],
-        'revenue_year': sum(revenue_values),
+        'revenue_this_month': Payment.objects.filter(paid_on__gte=today.replace(day=1)).aggregate(total=Sum('amount'))['total'] or 0,
+        'revenue_total': sum(revenue_values),
+        'period': period,
+        'start': start,
+        'end': end,
         'expiring': [s for s in not_renewed if s.status == Status.EXPIRING_SOON],
         'expired': [s for s in not_renewed if s.status == Status.EXPIRED],
         'upcoming': [s for s in not_renewed if s.status == Status.ACTIVE and s.days_left <= 90],

@@ -42,12 +42,28 @@
 
 <div class="row g-3 mb-4">
   <div class="col-lg-8">
-    <div class="card shadow-sm h-100">
+    <div class="card shadow-sm h-100" id="revenue">
       <div class="card-header bg-white d-flex justify-content-between">
         <span class="fw-semibold">Monthly revenue</span>
-        <span class="text-muted">Last 12 months: <span class="fw-semibold text-body">₹{{ revenue_year|floatformat:"0"|intcomma }}</span></span>
+        <span class="text-muted">{% if period == 'custom' %}Selected period{% elif period == '12' %}Last 1 year{% else %}Last {{ period }} months{% endif %}: <span class="fw-semibold text-body">₹{{ revenue_total|floatformat:"0"|intcomma }}</span></span>
       </div>
-      <div class="card-body"><div style="height: 280px;"><canvas id="revenue-chart" role="img" aria-label="Revenue collected per month for the last 12 months"></canvas></div></div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 justify-content-between mb-3">
+          <div class="btn-group btn-group-sm">
+            <a class="btn btn-outline-primary{% if period == '3' %} active{% endif %}" href="?period=3#revenue">3 months</a>
+            <a class="btn btn-outline-primary{% if period == '6' %} active{% endif %}" href="?period=6#revenue">6 months</a>
+            <a class="btn btn-outline-primary{% if period == '12' %} active{% endif %}" href="?period=12#revenue">1 year</a>
+          </div>
+          {% now "Y-m-d" as today %}
+          <form class="d-flex flex-wrap align-items-center gap-2" method="get" action="#revenue">
+            <input type="hidden" name="period" value="custom">
+            <input class="form-control form-control-sm w-auto" type="date" name="from" aria-label="From date" max="{{ today }}" value="{% if period == 'custom' %}{{ start|date:'Y-m-d' }}{% endif %}" required>
+            <input class="form-control form-control-sm w-auto" type="date" name="to" aria-label="To date" max="{{ today }}" value="{% if period == 'custom' %}{{ end|date:'Y-m-d' }}{% endif %}" required>
+            <button class="btn btn-sm btn-primary">Apply</button>
+          </form>
+        </div>
+        <div style="height: 280px;"><canvas id="revenue-chart" role="img" aria-label="Revenue collected per month for the selected period"></canvas></div>
+      </div>
     </div>
   </div>
   <div class="col-lg-4">
