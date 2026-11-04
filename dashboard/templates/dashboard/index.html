@@ -11,9 +11,9 @@
   {% include "dashboard/_stat.html" with label="Revenue collected" value=collected money=True %}
   {% include "dashboard/_stat.html" with label="Outstanding" value=outstanding money=True %}
   {% include "dashboard/_stat.html" with label="Pending (not yet due)" value=pending_amount money=True %}
-  {% include "dashboard/_stat.html" with label="Overdue" value=overdue_amount money=True %}
-  {% include "dashboard/_stat.html" with label="Revenue this month" value=revenue_this_month money=True %}
-  {% include "dashboard/_stat.html" with label="Revenue, last 12 months" value=revenue_year money=True %}
+  {% include "dashboard/_stat.html" with label="Overdue" value=overdue_amount money=True width=4 %}
+  {% include "dashboard/_stat.html" with label="Revenue this month" value=revenue_this_month money=True width=4 %}
+  {% include "dashboard/_stat.html" with label="Revenue, last 12 months" value=revenue_year money=True width=4 %}
 </div>
 
 <h2 class="h6 text-muted">Clients</h2>
@@ -26,11 +26,11 @@
 
 <h2 class="h6 text-muted">Subscriptions</h2>
 <div class="row g-3 mb-4">
-  {% include "dashboard/_stat.html" with label="Active" value=status_counts.active %}
-  {% include "dashboard/_stat.html" with label="Expiring in 30 days" value=status_counts.expiring_soon %}
-  {% include "dashboard/_stat.html" with label="Expired" value=status_counts.expired %}
-  {% include "dashboard/_stat.html" with label="Licensed users" value=licensed_users %}
-  {% include "dashboard/_stat.html" with label="Active users" value=active_users %}
+  {% include "dashboard/_stat.html" with label="Active" value=status_counts.active width=4 %}
+  {% include "dashboard/_stat.html" with label="Expiring in 30 days" value=status_counts.expiring_soon width=4 %}
+  {% include "dashboard/_stat.html" with label="Expired" value=status_counts.expired width=4 %}
+  {% include "dashboard/_stat.html" with label="Licensed users" value=licensed_users width=6 %}
+  {% include "dashboard/_stat.html" with label="Active users" value=active_users width=6 %}
 </div>
 
 <div class="row g-3 mb-4">

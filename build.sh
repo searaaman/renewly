@@ -15,3 +15,4 @@ user.is_staff = user.is_superuser = True
 user.set_password(os.environ['DJANGO_SUPERUSER_PASSWORD'])
 user.save()
 "
+python manage.py seed_demo
