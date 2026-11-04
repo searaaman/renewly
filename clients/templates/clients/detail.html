@@ -40,4 +40,12 @@
     </div>
   </div>
 </div>
+
+<div class="card shadow-sm mt-3">
+  <div class="card-header bg-white d-flex align-items-center">
+    <span class="fw-semibold">Subscriptions</span>
+    <a class="btn btn-outline-primary btn-sm ms-auto" href="{% url 'subscriptions:new' %}?client={{ client.pk }}"><i class="bi bi-plus-lg me-1"></i>Add subscription</a>
+  </div>
+  {% include "subscriptions/_table.html" with show_client=False %}
+</div>
 {% endblock %}

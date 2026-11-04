@@ -1,10 +1,12 @@
 from django import forms
 from django.utils import timezone
 
+from config.forms import BootstrapModelForm
+
 from .models import Client
 
 
-class ClientForm(forms.ModelForm):
+class ClientForm(BootstrapModelForm):
     class Meta:
         model = Client
         fields = [
@@ -16,12 +18,6 @@ class ClientForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'rows': 2}),
             'notes': forms.Textarea(attrs={'rows': 3}),
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            is_select = isinstance(field.widget, forms.Select)
-            field.widget.attrs['class'] = 'form-select' if is_select else 'form-control'
 
     def clean_onboarded_on(self):
         date = self.cleaned_data['onboarded_on']

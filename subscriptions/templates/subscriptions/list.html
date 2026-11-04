@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Subscriptions · Renewly{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h4 mb-0">Subscriptions</h1>
+  <a class="btn btn-primary btn-sm" href="{% url 'subscriptions:new' %}"><i class="bi bi-plus-lg me-1"></i>Add subscription</a>
+</div>
+
+<form class="d-flex flex-nowrap align-items-center gap-2 mb-3" method="get">
+  <div class="dropdown">
+    <button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+      <i class="bi bi-sliders me-1"></i>Filter
+      {% if status or sort %}<span class="position-absolute top-0 start-100 translate-middle p-1 bg-primary rounded-circle"></span>{% endif %}
+    </button>
+    <div class="dropdown-menu p-3" style="min-width: 240px;">
+      <label class="form-label small text-muted" for="status">Status</label>
+      <select class="form-select form-select-sm mb-3" name="status" id="status">
+        <option value="">All</option>
+        {% for value, label in statuses %}
+        <option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <label class="form-label small text-muted" for="sort">Sort by expiry</label>
+      <select class="form-select form-select-sm mb-3" name="sort" id="sort">
+        <option value="">Soonest first</option>
+        <option value="latest" {% if sort == 'latest' %}selected{% endif %}>Latest first</option>
+      </select>
+      <button class="btn btn-primary btn-sm w-100">Apply</button>
+    </div>
+  </div>
+  {% if status or sort %}<a class="btn btn-link btn-sm" href="{% url 'subscriptions:list' %}">Clear</a>{% endif %}
+</form>
+
+<div class="card shadow-sm">
+  {% include "subscriptions/_table.html" with show_client=True %}
+</div>
+{% endblock %}

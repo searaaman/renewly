@@ -1,0 +1,60 @@
+{% load humanize %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+      <tr>
+        {% if show_client %}<th>Client</th>{% endif %}
+        <th>Plan</th>
+        <th>Period</th>
+        <th class="d-none d-md-table-cell">Licenses</th>
+        <th class="text-end">Amount</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for subscription in subscriptions %}
+      <tr>
+        {% if show_client %}<td><a class="fw-semibold text-decoration-none" href="{% url 'clients:detail' subscription.client_id %}">{{ subscription.client.company_name }}</a></td>{% endif %}
+        <td>{{ subscription.plan }}{% if subscription.renewed_from_id %} <i class="bi bi-arrow-repeat text-muted" title="Renewal"></i>{% endif %}</td>
+        <td class="small">
+          {{ subscription.start_date|date:"d M Y" }} → {{ subscription.end_date|date:"d M Y" }}
+          {% if subscription.status == 'expiring_soon' %}<div class="text-warning-emphasis">{{ subscription.days_left }} days left</div>
+          {% elif subscription.status == 'expired' %}<div class="text-danger">ended {{ subscription.end_date|timesince }} ago</div>{% endif %}
+        </td>
+        <td class="d-none d-md-table-cell small" style="min-width: 140px;">
+          {{ subscription.active_users }} / {{ subscription.licensed_users }} used
+          <div class="progress mt-1" style="height: 5px;">
+            <div class="progress-bar" style="width: {% widthratio subscription.active_users subscription.licensed_users 100 %}%"></div>
+          </div>
+          <span class="text-muted">{{ subscription.available_licenses }} available</span>
+        </td>
+        <td class="text-end">₹{{ subscription.amount|floatformat:"0"|intcomma }}</td>
+        <td>{% include "subscriptions/_status_badge.html" %}</td>
+        <td class="text-end text-nowrap">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown" aria-label="Actions"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" href="{% url 'subscriptions:edit' subscription.pk %}"><i class="bi bi-pencil me-2"></i>Edit</a></li>
+              {% if subscription.status != 'cancelled' %}
+              <li>
+                <form method="post" action="{% url 'subscriptions:renew' subscription.pk %}">{% csrf_token %}
+                  <button class="dropdown-item"><i class="bi bi-arrow-repeat me-2"></i>Renew</button>
+                </form>
+              </li>
+              <li>
+                <form method="post" action="{% url 'subscriptions:cancel' subscription.pk %}" onsubmit="return confirm('Cancel this subscription?');">{% csrf_token %}
+                  <button class="dropdown-item text-danger"><i class="bi bi-x-circle me-2"></i>Cancel</button>
+                </form>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center text-muted py-4">No subscriptions found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -31,8 +31,8 @@ def client_list(request):
 @login_required
 def client_detail(request, pk):
     client = get_object_or_404(Client, pk=pk)
-    return render(request, 'clients/detail.html', {'client': client})
-
+    subscriptions = client.subscriptions.select_related('plan')
+    return render(request, 'clients/detail.html', {'client': client, 'subscriptions': subscriptions})
 
 @login_required
 def client_form(request, pk=None):
