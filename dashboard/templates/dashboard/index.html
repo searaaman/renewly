@@ -3,8 +3,103 @@
 {% block title %}Dashboard · Renewly{% endblock %}
 
 {% block content %}
-<h1 class="h4 mb-4">Dashboard</h1>
-<div class="card shadow-sm">
-  <div class="card-body">It works. Modules come next.</div>
+<h1 class="h4 mb-3">Dashboard</h1>
+
+<h2 class="h6 text-muted">Finance</h2>
+<div class="row g-3 mb-4">
+  {% include "dashboard/_stat.html" with label="Total subscription value" value=total_value money=True %}
+  {% include "dashboard/_stat.html" with label="Revenue collected" value=collected money=True %}
+  {% include "dashboard/_stat.html" with label="Outstanding" value=outstanding money=True %}
+  {% include "dashboard/_stat.html" with label="Pending (not yet due)" value=pending_amount money=True %}
+  {% include "dashboard/_stat.html" with label="Overdue" value=overdue_amount money=True %}
+  {% include "dashboard/_stat.html" with label="Revenue this month" value=revenue_this_month money=True %}
+  {% include "dashboard/_stat.html" with label="Revenue, last 12 months" value=revenue_year money=True %}
 </div>
+
+<h2 class="h6 text-muted">Clients</h2>
+<div class="row g-3 mb-4">
+  {% include "dashboard/_stat.html" with label="Total" value=client_total %}
+  {% include "dashboard/_stat.html" with label="Active" value=client_counts.active %}
+  {% include "dashboard/_stat.html" with label="Inactive" value=client_counts.inactive %}
+  {% include "dashboard/_stat.html" with label="Suspended" value=client_counts.suspended %}
+</div>
+
+<h2 class="h6 text-muted">Subscriptions</h2>
+<div class="row g-3 mb-4">
+  {% include "dashboard/_stat.html" with label="Active" value=status_counts.active %}
+  {% include "dashboard/_stat.html" with label="Expiring in 30 days" value=status_counts.expiring_soon %}
+  {% include "dashboard/_stat.html" with label="Expired" value=status_counts.expired %}
+  {% include "dashboard/_stat.html" with label="Licensed users" value=licensed_users %}
+  {% include "dashboard/_stat.html" with label="Active users" value=active_users %}
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">Monthly revenue</div>
+      <div class="card-body"><div style="height: 280px;"><canvas id="revenue-chart" role="img" aria-label="Revenue collected per month for the last 12 months"></canvas></div></div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold">Subscriptions by status</div>
+      <div class="card-body"><div style="height: 280px;"><canvas id="status-chart" role="img" aria-label="Number of subscriptions in each status"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<h2 class="h6 text-muted">Alerts</h2>
+<div class="row g-3">
+  {% include "dashboard/_alerts.html" with title="Expiring within 30 days" items=expiring kind="expiry" color="warning" icon="bi-hourglass-split" %}
+  {% include "dashboard/_alerts.html" with title="Expired, not renewed" items=expired kind="expiry" color="danger" icon="bi-x-octagon" %}
+  {% include "dashboard/_alerts.html" with title="Upcoming renewals (31–90 days)" items=upcoming kind="expiry" color="primary" icon="bi-calendar-event" %}
+  {% include "dashboard/_alerts.html" with title="Overdue payments" items=overdue kind="payment" color="danger" icon="bi-exclamation-triangle" %}
+  {% include "dashboard/_alerts.html" with title="Pending payments" items=pending_payments kind="payment" color="secondary" icon="bi-clock" %}
+</div>
+
+{{ revenue_labels|json_script:"revenue-labels" }}
+{{ revenue_values|json_script:"revenue-values" }}
+{{ status_labels|json_script:"status-labels" }}
+{{ status_values|json_script:"status-values" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.js"></script>
+<script>
+  const read = (id) => JSON.parse(document.getElementById(id).textContent);
+  const rupees = (value) => '₹' + Number(value).toLocaleString('en-IN');
+  const grid = { color: '#eef0f3' };
+
+  new Chart(document.getElementById('revenue-chart'), {
+    type: 'bar',
+    data: {
+      labels: read('revenue-labels'),
+      datasets: [{ data: read('revenue-values'), backgroundColor: '#0d6efd', borderRadius: 4, maxBarThickness: 28 }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => rupees(c.parsed.y) } } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid, ticks: { callback: rupees } } },
+    },
+  });
+
+  new Chart(document.getElementById('status-chart'), {
+    type: 'bar',
+    data: {
+      labels: read('status-labels'),
+      datasets: [{
+        data: read('status-values'),
+        backgroundColor: ['#198754', '#ffc107', '#dc3545', '#0dcaf0', '#6c757d'],
+        borderRadius: 4,
+        maxBarThickness: 24,
+      }],
+    },
+    options: {
+      indexAxis: 'y',
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, grid, ticks: { precision: 0 } }, y: { grid: { display: false } } },
+    },
+  });
+</script>
 {% endblock %}

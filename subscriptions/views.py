@@ -5,9 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.utils.dateparse import parse_date
 
 from .forms import SubscriptionForm
 from .models import Subscription
+
 
 
 @login_required
@@ -15,15 +17,21 @@ def subscription_list(request):
     subscriptions = Subscription.objects.select_related('client', 'plan').prefetch_related('payments')
     if request.GET.get('sort') == 'latest':
         subscriptions = subscriptions.order_by('-end_date')
+    try:
+        expires_by = parse_date(request.GET.get('expires_by', ''))
+    except ValueError:
+        expires_by = None
+    if expires_by:
+        subscriptions = subscriptions.filter(end_date__lte=expires_by)
     status = request.GET.get('status', '')
     if status:
-        # ponytail: status is computed in Python, fine for ZcaleUp's ~15 clients; move into the query if this grows to thousands
         subscriptions = [s for s in subscriptions if s.status == status]
     return render(request, 'subscriptions/list.html', {
         'subscriptions': subscriptions,
         'status': status,
         'statuses': Subscription.Status.choices,
         'sort': request.GET.get('sort', ''),
+        'expires_by': expires_by,
     })
 
 

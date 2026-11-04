@@ -114,6 +114,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-in'
 
+FORMAT_MODULE_PATH = 'config.formats'
+
 TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True

@@ -1,0 +1,26 @@
+{% load humanize %}
+<div class="col-md-6 col-xl-4">
+  <div class="card shadow-sm h-100">
+    <div class="card-header bg-white d-flex align-items-center">
+      <i class="bi {{ icon }} text-{{ color }} me-2"></i>
+      <span class="fw-semibold">{{ title }}</span>
+      <span class="badge text-bg-{{ color }} ms-auto">{{ items|length }}</span>
+    </div>
+    <ul class="list-group list-group-flush">
+      {% for subscription in items %}
+      <li class="list-group-item d-flex justify-content-between gap-2">
+        <span>
+          <a class="text-decoration-none" href="{% url 'clients:detail' subscription.client_id %}">{{ subscription.client.company_name }}</a>
+          <span class="d-block small text-muted">{{ subscription.plan }}</span>
+        </span>
+        <span class="small text-end text-nowrap">
+          {% if kind == 'expiry' %}{{ subscription.end_date|date:"d M Y" }}
+          {% else %}₹{{ subscription.outstanding|floatformat:"0"|intcomma }}<span class="d-block text-muted">due {{ subscription.due_date|date:"d M Y" }}</span>{% endif %}
+        </span>
+      </li>
+      {% empty %}
+      <li class="list-group-item text-muted small">None</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

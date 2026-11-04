@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import ClientForm
 from .models import Client
 from payments.models import Payment
+from subscriptions.models import Subscription
 
 
 @login_required
@@ -13,6 +14,7 @@ def client_list(request):
     clients = Client.objects.all()
     query = request.GET.get('q', '').strip()
     status = request.GET.get('status', '')
+    payment_status = request.GET.get('payment_status', '')
     if query:
         clients = clients.filter(
             Q(company_name__icontains=query)
@@ -21,11 +23,16 @@ def client_list(request):
         )
     if status:
         clients = clients.filter(status=status)
+    if payment_status:
+        subscriptions = Subscription.objects.filter(cancelled_at__isnull=True).prefetch_related('payments')
+        clients = clients.filter(pk__in={s.client_id for s in subscriptions if s.payment_status == payment_status})
     return render(request, 'clients/list.html', {
         'clients': clients,
         'query': query,
         'status': status,
         'statuses': Client.Status.choices,
+        'payment_status': payment_status,
+        'payment_statuses': Subscription.PaymentStatus.choices,
     })
 
 
