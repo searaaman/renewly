@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}Dashboard · Renewly{% endblock %}
 
@@ -7,13 +8,12 @@
 
 <h2 class="h6 text-muted">Finance</h2>
 <div class="row g-3 mb-4">
-  {% include "dashboard/_stat.html" with label="Total subscription value" value=total_value money=True %}
-  {% include "dashboard/_stat.html" with label="Revenue collected" value=collected money=True %}
-  {% include "dashboard/_stat.html" with label="Outstanding" value=outstanding money=True %}
-  {% include "dashboard/_stat.html" with label="Pending (not yet due)" value=pending_amount money=True %}
-  {% include "dashboard/_stat.html" with label="Overdue" value=overdue_amount money=True width=4 %}
+  {% include "dashboard/_stat.html" with label="Total subscription value" value=total_value money=True width=4 %}
+  {% include "dashboard/_stat.html" with label="Revenue collected" value=collected money=True width=4 color="success" %}
   {% include "dashboard/_stat.html" with label="Revenue this month" value=revenue_this_month money=True width=4 %}
-  {% include "dashboard/_stat.html" with label="Revenue, last 12 months" value=revenue_year money=True width=4 %}
+  {% include "dashboard/_stat.html" with label="Outstanding" value=outstanding money=True width=4 %}
+  {% include "dashboard/_stat.html" with label="Pending (not yet due)" value=pending_amount money=True width=4 color="warning-emphasis" %}
+  {% include "dashboard/_stat.html" with label="Overdue" value=overdue_amount money=True width=4 color="danger" %}
 </div>
 
 <h2 class="h6 text-muted">Clients</h2>
@@ -21,22 +21,32 @@
   {% include "dashboard/_stat.html" with label="Total" value=client_total %}
   {% include "dashboard/_stat.html" with label="Active" value=client_counts.active %}
   {% include "dashboard/_stat.html" with label="Inactive" value=client_counts.inactive %}
-  {% include "dashboard/_stat.html" with label="Suspended" value=client_counts.suspended %}
+  {% include "dashboard/_stat.html" with label="Suspended" value=client_counts.suspended color="danger" %}
 </div>
 
 <h2 class="h6 text-muted">Subscriptions</h2>
 <div class="row g-3 mb-4">
-  {% include "dashboard/_stat.html" with label="Active" value=status_counts.active width=4 %}
-  {% include "dashboard/_stat.html" with label="Expiring in 30 days" value=status_counts.expiring_soon width=4 %}
-  {% include "dashboard/_stat.html" with label="Expired" value=status_counts.expired width=4 %}
-  {% include "dashboard/_stat.html" with label="Licensed users" value=licensed_users width=6 %}
-  {% include "dashboard/_stat.html" with label="Active users" value=active_users width=6 %}
+  {% include "dashboard/_stat.html" with label="Active" value=status_counts.active %}
+  {% include "dashboard/_stat.html" with label="Expiring in 30 days" value=status_counts.expiring_soon color="warning-emphasis" %}
+  {% include "dashboard/_stat.html" with label="Expired" value=status_counts.expired color="danger" %}
+  <div class="col-6 col-lg-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body py-3">
+        <div class="text-muted small">Active / licensed users</div>
+        <div class="fs-4 fw-semibold">{{ active_users }} / {{ licensed_users }}</div>
+        <div class="progress mt-1" style="height: 5px;"><div class="progress-bar" style="width: {% widthratio active_users licensed_users 100 %}%"></div></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="row g-3 mb-4">
   <div class="col-lg-8">
     <div class="card shadow-sm h-100">
-      <div class="card-header bg-white fw-semibold">Monthly revenue</div>
+      <div class="card-header bg-white d-flex justify-content-between">
+        <span class="fw-semibold">Monthly revenue</span>
+        <span class="text-muted">Last 12 months: <span class="fw-semibold text-body">₹{{ revenue_year|floatformat:"0"|intcomma }}</span></span>
+      </div>
       <div class="card-body"><div style="height: 280px;"><canvas id="revenue-chart" role="img" aria-label="Revenue collected per month for the last 12 months"></canvas></div></div>
     </div>
   </div>
@@ -50,11 +60,11 @@
 
 <h2 class="h6 text-muted">Alerts</h2>
 <div class="row g-3">
-  {% include "dashboard/_alerts.html" with title="Expiring within 30 days" items=expiring kind="expiry" color="warning" icon="bi-hourglass-split" %}
-  {% include "dashboard/_alerts.html" with title="Expired, not renewed" items=expired kind="expiry" color="danger" icon="bi-x-octagon" %}
-  {% include "dashboard/_alerts.html" with title="Upcoming renewals (31–90 days)" items=upcoming kind="expiry" color="primary" icon="bi-calendar-event" %}
-  {% include "dashboard/_alerts.html" with title="Overdue payments" items=overdue kind="payment" color="danger" icon="bi-exclamation-triangle" %}
-  {% include "dashboard/_alerts.html" with title="Pending payments" items=pending_payments kind="payment" color="secondary" icon="bi-clock" %}
+  {% include "dashboard/_alerts.html" with title="Expiring within 30 days" items=expiring kind="expiry" color="warning" icon="bi-hourglass-split" width=4 %}
+  {% include "dashboard/_alerts.html" with title="Expired, not renewed" items=expired kind="expiry" color="danger" icon="bi-x-octagon" width=4 %}
+  {% include "dashboard/_alerts.html" with title="Renewals in 31–90 days" items=upcoming kind="expiry" color="primary" icon="bi-calendar-event" width=4 %}
+  {% include "dashboard/_alerts.html" with title="Overdue payments" items=overdue kind="payment" color="danger" icon="bi-exclamation-triangle" width=6 %}
+  {% include "dashboard/_alerts.html" with title="Pending payments" items=pending_payments kind="payment" color="secondary" icon="bi-clock" width=6 %}
 </div>
 
 {{ revenue_labels|json_script:"revenue-labels" }}
