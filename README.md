@@ -90,7 +90,6 @@ Key rules are also enforced by the database: the end date must follow the start 
 - **Invoicing:** the app doesn't issue GST invoices. This is intentional, as explained in the market research.
 - **Payment corrections:** these go through the Django admin panel at `/admin`.
 - **Payment gateway:** payments are recorded manually, and no gateway is connected.
-- **Concurrent payments:** two people paying into the same subscription at the same moment could get past the overpayment check.
 - **Status filters:** these run in Python rather than SQL, which is fine at this scale but would need changing for thousands of subscriptions.
 - **Plan changes:** these are recorded when renewing. Editing a subscription directly overwrites its terms.
 - **Automated tests:** these cover the renewal list, renewal changes, financial years and client reports (`python manage.py test`). Other flows have been tested manually.
